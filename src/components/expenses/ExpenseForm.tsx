@@ -46,7 +46,7 @@ export function ExpenseForm({ categories }: ExpenseFormProps) {
     const [newCategory, setNewCategory] = useState("");
 
     const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+        resolver: zodResolver(formSchema) as any,
         defaultValues: {
             categoryId: "",
             amount: 0,
