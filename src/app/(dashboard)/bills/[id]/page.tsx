@@ -31,7 +31,7 @@ export default async function BillPage(props: { params: Promise<{ id: string }> 
         notFound()
     }
 
-    const settings = settingsList.reduce((acc: Record<string, string>, curr) => {
+    const settings = settingsList.reduce((acc: Record<string, string>, curr: { key: string; value: string }) => {
         acc[curr.key] = curr.value
         return acc
     }, {} as Record<string, string>)
