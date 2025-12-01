@@ -102,7 +102,7 @@ export default async function BillPage(props: { params: Promise<{ id: string }> 
                         </tr>
                     </thead>
                     <tbody>
-                        {bill.items.map((item, index) => (
+                        {bill.items.map((item: any, index: number) => (
                             <tr key={item.id} className="border-b border-gray-200">
                                 <td className="py-2">{index + 1}</td>
                                 <td className="py-2 font-medium">{item.product.name}</td>
