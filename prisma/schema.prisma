@@ -1,0 +1,197 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String?  @unique
+  mobile    String   @unique
+  password  String   // Hashed password or PIN
+  role      String   @default("ADMIN") // ADMIN, STAFF
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id            String   @id @default(uuid())
+  name          String
+  code          String   @unique // Item Code
+  category      String   // TOYOTA, TSUDAKOMA, etc.
+  hsn           String?
+  purchasePrice Float
+  sellingPrice  Float
+  stock         Int      @default(0)
+  unit          String   @default("PCS")
+  imageUrl      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  billItems     BillItem[]
+  salesReturnItems SalesReturnItem[]
+  purchaseItems PurchaseItem[]
+  stockAdjustments StockAdjustment[]
+}
+
+model Customer {
+  id        String   @id @default(uuid())
+  name      String
+  mobile    String   @unique
+  address   String?
+  gst       String?
+  balance   Float    @default(0.0) // Positive = Due, Negative = Advance
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  bills     Bill[]
+  payments  Payment[]
+  salesReturns SalesReturn[]
+}
+
+model Bill {
+  id              Int        @id @default(autoincrement())
+  date            DateTime   @default(now())
+  customerId      String?
+  customer        Customer?  @relation(fields: [customerId], references: [id])
+  customerName    String?    // Snapshot in case customer is deleted/guest
+  customerMobile  String?
+  customerAddress String?
+  totalAmount     Float
+  discount        Float      @default(0.0)
+  transportCharge Float      @default(0.0)
+  paymentMode     String     @default("CASH") // CASH, UPI, CREDIT, BANK
+  items           BillItem[]
+  salesReturns    SalesReturn[]
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+}
+
+model BillItem {
+  id        String  @id @default(uuid())
+  billId    Int
+  bill      Bill    @relation(fields: [billId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  qty       Int
+  price     Float
+  amount    Float
+}
+
+model Settings {
+  id    String @id @default(uuid())
+  key   String @unique
+  value String
+}
+
+model Payment {
+  id          String   @id @default(uuid())
+  date        DateTime @default(now())
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  amount      Float
+  mode        String   @default("CASH") // CASH, UPI, BANK
+  notes       String?
+  createdAt   DateTime @default(now())
+}
+
+model SalesReturn {
+  id          Int      @id @default(autoincrement())
+  date        DateTime @default(now())
+  billId      Int?
+  bill        Bill?    @relation(fields: [billId], references: [id])
+  customerId  String?
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  totalAmount Float
+  items       SalesReturnItem[]
+  createdAt   DateTime @default(now())
+}
+
+model SalesReturnItem {
+  id            String      @id @default(uuid())
+  salesReturnId Int
+  salesReturn   SalesReturn @relation(fields: [salesReturnId], references: [id], onDelete: Cascade)
+  productId     String
+  product       Product     @relation(fields: [productId], references: [id])
+  qty           Int
+  price         Float
+  amount        Float
+}
+
+model Supplier {
+  id        String   @id @default(uuid())
+  name      String
+  mobile    String   @unique
+  email     String?
+  address   String?
+  gst       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  purchases Purchase[]
+  payments  PaymentOut[]
+}
+
+model Purchase {
+  id          Int            @id @default(autoincrement())
+  date        DateTime       @default(now())
+  supplierId  String
+  supplier    Supplier       @relation(fields: [supplierId], references: [id])
+  totalAmount Float
+  items       PurchaseItem[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model PurchaseItem {
+  id         String   @id @default(uuid())
+  purchaseId Int
+  purchase   Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+  qty        Int
+  price      Float
+  amount     Float
+}
+
+model StockAdjustment {
+  id        String   @id @default(uuid())
+  date      DateTime @default(now())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  type      String   // ADD, REMOVE
+  qty       Int
+  reason    String?
+  createdAt DateTime @default(now())
+}
+
+model PaymentOut {
+  id          String   @id @default(uuid())
+  date        DateTime @default(now())
+  supplierId  String
+  supplier    Supplier @relation(fields: [supplierId], references: [id])
+  amount      Float
+  mode        String   @default("CASH") // CASH, UPI, BANK
+  notes       String?
+  createdAt   DateTime @default(now())
+}
+
+model ExpenseCategory {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  expenses  Expense[]
+}
+
+model Expense {
+  id         String          @id @default(uuid())
+  date       DateTime        @default(now())
+  amount     Float
+  categoryId String
+  category   ExpenseCategory @relation(fields: [categoryId], references: [id])
+  notes      String?
+  createdAt  DateTime        @default(now())
+}
