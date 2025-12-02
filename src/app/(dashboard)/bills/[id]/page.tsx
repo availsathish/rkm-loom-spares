@@ -120,7 +120,7 @@ export default async function BillPage(props: { params: Promise<{ id: string }> 
                     <div className="w-64 space-y-2 text-sm">
                         <div className="flex justify-between">
                             <span>Subtotal:</span>
-                            <span>₹ {bill.items.reduce((sum, i) => sum + i.amount, 0).toFixed(2)}</span>
+                            <span>₹ {bill.items.reduce((sum: number, i: any) => sum + i.amount, 0).toFixed(2)}</span>
                         </div>
                         {bill.discount > 0 && (
                             <div className="flex justify-between text-green-600">
