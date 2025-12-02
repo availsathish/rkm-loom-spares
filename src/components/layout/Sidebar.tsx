@@ -72,11 +72,7 @@ const navItems = [
         href: "/payments-out",
         icon: ArrowUpRight,
     },
-    {
-        title: "Expenses",
-        href: "/expenses",
-        icon: Receipt,
-    },
+
     {
         title: "Reports",
         href: "/reports",
