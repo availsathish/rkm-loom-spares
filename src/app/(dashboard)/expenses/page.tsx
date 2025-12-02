@@ -22,7 +22,7 @@ export default async function ExpensesPage() {
         orderBy: { name: "asc" },
     });
 
-    const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+    const totalExpenses = expenses.reduce((sum: number, exp) => sum + exp.amount, 0);
 
     return (
         <div className="p-6 space-y-6">
